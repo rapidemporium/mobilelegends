@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <body>
+    <div id="root">
+      <!-- Nav bar  -->
+      <nav class="navbar">
+        <div class="container">
+          <a class="navbar-brand" href="#">
+           <span>Name</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="main">
+        <div class="left">
+          <div class="image-frame">
+            <img src="https://i0.wp.com/radientofficial.com/wp-content/uploads/2023/04/f0a53-unnamed-1.png?fit=512%2C512&ssl=1" class="img-fluid" alt="...">
+          </div>
+        </div>
+        <div class="right">
+          <div class="card">
+            <div class="head"><h1>Mlbb: Special</h1></div>
+            <div class="sub-head"><h4>Daimonds:</h4></div>
+            <div class="items">
+            
+            </div>
+          </div>
+
+          <div class="wrapper">
+            <div class="price">
+              <div class="clear"><i class="ri-close-line"></i> Clear</div>
+              <div class="text">Choosed Plan: <span id="choosed">0</span></div>
+              <div class="amt"><div class="sym">₹</div><div class="rs">0</div></div>
+            </div>
+          </div>
+          <span id="warn">Please fill the form before selecting daimonds</span>
+
+         <!-- input form  -->
+         <form>
+          <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">User ID <span>Enter your User ID</span></label>
+            <input type="number" name="userid" placeholder="E.g. 123456789" maxlength="10" class="form-control" id="exampleInputEmail1" required>
+          </div>
+          <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Server ID <span>Enter your Server ID</span></label>
+            <input type="number" name="serverid" placeholder="E.g. 4567" maxlength="5" class="form-control" id="exampleInputPassword1" required>
+          </div>
+          <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Email <span>Enter your Email</span></label>
+            <input type="email" name="email" placeholder="example@gmail.com" class="form-control" id="exampleInputPassword2" required>
+          </div>
+          
+          <div class="buttons">
+            <button type="" id="addtocart" class="btn">Add to Cart</button>
+            <button type="submit" id="rzp-button1" class="btn">Buy</button>
+          </div>
+        </form>
+        </div>
+      </div>
+
+      <div class="footer"></div>
+
+    </div>
+   
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  
+  <script>
+  
+  document.getElementById('rzp-button1').onclick = async function(e){
+      e.preventDefault();
+  
+      // Retrieve the value of "final" from the data attribute
+      var final = document.getElementById('rzp-button1').getAttribute('data-final');
+      var buyButton = document.getElementById("rzp-button1");
+      
+      buyButton.addEventListener("click", function(){
+      var emailValue = emailInput.value;
+     
+})
+  
+      let response = await fetch("http://localhost:3000/payment", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+              amount: final * 100,
+          })
+      })
+   
+  
+      let orderData = await response.json();
+      console.log(orderData.order.id);
+  
+      var options = {
+      "key": "rzp_test_PCIwXguS5ffBCG", // Enter the Key ID generated from the Dashboard
+      "amount": final * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      "currency": "INR",
+      // "name": "Acme Corp",
+      // "description": "Test Transaction",
+      // "image": "https://example.com/your_logo",
+      "order_id": orderData.order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+      "handler": function (response){
+          // alert(response.razorpay_payment_id);
+          // alert(response.razorpay_order_id);
+          // alert(response.razorpay_signature)
+          // window.location.href = 'http://localhost:3000/check';
+  
+  $.ajax({
+      url: 'http://localhost:3000/pay-verify',
+      type: 'POST',
+      data: {
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature,
+      },
+  })
+      },
+  };
+  var rzp1 = new Razorpay(options);
+      rzp1.open();
+  }
+  
+  </script>
+    <script src="/javascripts/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </body>
+</html>
