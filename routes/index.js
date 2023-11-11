@@ -12,10 +12,10 @@ const secretKey = process.env.YOUR_SECRET_KEY;
 const payload = {
   path: "order/create_order",
   data: {
-      category: "1",
+      category: "1223",
       "product-id": "1874705",
       quantity: "1",
-      "Player ID": "12314123",
+      "Player ID": "123141000",
       Server: "Asia Pacific - Eden"
   }
 };
