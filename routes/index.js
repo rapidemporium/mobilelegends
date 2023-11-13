@@ -3,19 +3,31 @@ var router = express.Router();
 const axios = require('axios');
 const CryptoJS = require('crypto-js');
 require('dotenv').config();
-
-
+const http = require('http');
+ 
+const app = express();
 const partnerId = process.env.YOUR_PARTNER_ID;
 const secretKey = process.env.YOUR_SECRET_KEY;
 
+//MooGold Sample Code for Create Order API
+//Note that you will need to add the CryptoJS library to your project to use the CryptoJS.HmacSHA256 method for generating the signature.
 
+
+const Razorpay = require("razorpay");
+var instance = new Razorpay({
+  key_id: process.env.KEY_ID,
+  key_secret: process.env.KEY_SECRET,
+});
+
+router.post('/proceed', function(req, res, next){
+  //Obtain Product ID from Product Detail API
 const payload = {
   path: "order/create_order",
   data: {
-      category: "1223",
+      category: "1",
       "product-id": "1874705",
       quantity: "1",
-      "Player ID": "123141000",
+      "Player ID": "12314123",
       Server: "Asia Pacific - Eden"
   }
 };
@@ -37,23 +49,23 @@ axios.post("https://moogold.com/wp-json/v1/api/order/create_order", payload, {
 })
 .then(response => {
   console.log(response.data);
+  console.log("proceed run !");
 })
 .catch(error => {
   console.error(error);
   console.log("We are Facing Some issue");
 });
- 
 
-const Razorpay = require("razorpay");
-var instance = new Razorpay({
-  key_id: process.env.KEY_ID,
-  key_secret: process.env.KEY_SECRET,
-});
+})
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index');
+  res.render('home');
 });
+
+router.get('/mlbb-moogold', function(req, res, next){
+  res.render('index');
+})
 
 
 router.get('/test', function(req, res, next){
@@ -61,47 +73,49 @@ router.get('/test', function(req, res, next){
 })
 
 
-router.use("/payment", async (req, res, next) => {
+// router.use("/payment", async (req, res, next) => {
 
-try{
+// try{
   
-  var instance = new Razorpay({ key_id: process.env.KEY_ID, key_secret: process.env.KEY_SECRET })
+//   var instance = new Razorpay({ key_id: process.env.KEY_ID, key_secret: process.env.KEY_SECRET })
  
-  var order = await instance.orders.create({
-    amount: req.body.amount,  // amount in the smallest currency unit
-    currency: "INR",
-    receipt: "order_rcptid_11", 
-  });
+//   var order = await instance.orders.create({
+//     amount: req.body.amount,  // amount in the smallest currency unit
+//     currency: "INR",
+//     receipt: "order_rcptid_11", 
+//   });
 
-res.status(201).json({
-  success: true,
-  order,
-});
+// res.status(201).json({
+//   success: true,
+//   order,
+// });
 
-}catch(err){
-  next(err);
-}
+// }catch(err){
+//   next(err);
+// }
 
-});
+// });
 
 
 
-router.post('/pay-verify', async (req,res, next) => {
+// router.post('/pay-verify', async (req,res, next) => {
 
-  var expectedSignature = crypto.createHmac('sha256', 'NbuBBPdNMiBejAITkjNeVHds')
-                                  .update(req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id)
-                                  .digest('hex');
-                                  console.log("sig"+req.body.razorpay_signature);
-                                  console.log("sig"+expectedSignature);
+//   var expectedSignature = crypto.createHmac('sha256', 'NbuBBPdNMiBejAITkjNeVHds')
+//                                   .update(req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id)
+//                                   .digest('hex');
+//                                   console.log("sig"+req.body.razorpay_signature);
+//                                   console.log("sig"+expectedSignature);
  
-  if(expectedSignature === req.body.razorpay_signature){
-    console.log("Payment Success");
-    //sending product details to its owner
-  }else{
-    console.log("Payment Fail");
-    res.redirect("/home");
-  }
+//   if(expectedSignature === req.body.razorpay_signature){
+//     console.log("Payment Success");
+//     //sending product details to its owner
+//   }else{
+//     console.log("Payment Fail");
+//     res.redirect("/home");
+//   }
  
-})
+// })
 
+
+ 
 module.exports = router;
