@@ -4,13 +4,74 @@ const axios = require('axios');
 const CryptoJS = require('crypto-js');
 require('dotenv').config();
 const http = require('http');
+const userModel = require('./users');
+const localStrategy =  require('passport-local');
+const passport = require('passport');
  
-const app = express();
+ 
+ 
+
 const partnerId = process.env.YOUR_PARTNER_ID;
 const secretKey = process.env.YOUR_SECRET_KEY;
 
-//MooGold Sample Code for Create Order API
-//Note that you will need to add the CryptoJS library to your project to use the CryptoJS.HmacSHA256 method for generating the signature.
+//setting up users Auth
+const { findOne } = require('./users');
+
+/* LOCAL PASSPORT STRATEGY */
+
+passport.use(
+  new localStrategy(
+    {
+      usernameField: "email",
+    },
+    userModel.authenticate()
+  )
+);
+
+
+router.post("/register", function (req, res, next) {
+  var usersRouter = new userModel({
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
+    email: req.body.email
+  });
+  userModel.register(usersRouter, req.body.password).then(function (dets) {
+    passport.authenticate("local")(req, res, function () {
+      res.redirect("/home");
+    });
+  });
+});
+
+router.post("/login", passport.authenticate("local", {
+    successRedirect: "/home",
+    failureRedirect: "/",
+    failureFlash: true,
+  }),
+  function (req, res, next) {
+    res.redirect("/");
+  }
+);
+
+/* LOGOUT ROUTE */
+
+router.get("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
+
+/* MIDDLEWARE */
+
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  } else {
+    res.redirect("/");
+  }
+}
 
 
 const Razorpay = require("razorpay");
@@ -44,7 +105,7 @@ axios.post("https://moogold.com/wp-json/v1/api/order/create_order", payload, {
       timestamp,
       auth,
       Authorization: `Basic ${auth_basic}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'routerlication/json'
   }
 })
 .then(response => {
@@ -60,63 +121,21 @@ axios.post("https://moogold.com/wp-json/v1/api/order/create_order", payload, {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('home');
+  res.render('userAuth');
 });
 
-router.get('/mlbb-moogold', function(req, res, next){
+router.get('/mlbb-moogold', isLoggedIn,  function(req, res, next){
   res.render('index');
 })
 
+router.get('/home', isLoggedIn,  async function(req, res, next){
+  let user = await userModel.findOne({email: req.session.passport.user});
+  res.render('home', {user});
+})
 
 router.get('/test', function(req, res, next){
   res.render('test');
 })
-
-const username = 'a279dcd30939a86ffc355e7fea880c70';
-const password = 'OEPlGuwwiz';
-
-const headers = {
-  Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
-  'Content-Type': 'application/json',
-};
-
-router.get('/products', async (req, res) => {
-  try {
-    const category_id = 1223; // Replace with the desired category ID
-
-    // Make a request to the MooGold API with Basic Authentication
-    const response = await axios.post(
-      'https://moogold.com/wp-json/v1/api/product/list_product',
-      { path: 'product/list_product', category_id },
-      { headers }
-    );
-
-    // Check if the response contains an error
-    if (response.data && response.data.err_code) {
-      // Handle the case where the request is unauthorized
-      if (response.data.err_code === '403') {
-        return res.status(403).json({ error: 'Unauthorized. Your account is not authorized to access the requested resource.' });
-      } else {
-        console.log("Error facing!");
-        return res.status(500).json({ error: 'Internal Server Error' });
-        
-      }
-    }
-
-    // Extract relevant product information from the API response
-    const products = response.data.map(product => ({
-      ID: product.ID,
-      post_title: product.post_title,
-    }));
-
-    // Send only the extracted product data in the response
-    res.json(products);
-    console.log('Products fetched!');
-  } catch (error) {
-    console.error('Error fetching products:', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
 
 
 // router.use("/payment", async (req, res, next) => {
@@ -162,6 +181,70 @@ router.get('/products', async (req, res) => {
  
 // })
 
+
+//listing products
+router.get('/products', async (req, res) => {
+  try {
+  
+const category_id = 1223; // Replace with the desired category ID
+const productList = {
+  path: "product/list_product",
+  data: {
+      category_id: category_id
+  }
+}
+    
+    // Make a request to the MooGold API with Basic Authentication
+const timestamp = Math.floor(Date.now() / 1000);
+const path = "product/list_product";
+
+const STRING_TO_SIGN = JSON.stringify(productList) + timestamp + path;
+const auth = CryptoJS.HmacSHA256(STRING_TO_SIGN, secretKey).toString();
+const auth_basic = Buffer.from(`${partnerId}:${secretKey}`).toString('base64');
+
+axios.post("https://moogold.com/wp-json/v1/api/product/list_product", productList, {
+  headers: {
+      timestamp,
+      auth,
+      Authorization: `Basic ${auth_basic}`,
+      'Content-Type': 'routerlication/json'
+  }
+})
+.then(response => {
+  console.log(response.data);
+  console.log("proceed run !");
+})
+.catch(error => {
+  console.error(error);
+  console.log("We are Facing Some issue");
+});
+
+    // Check if the response contains an error
+    if (response.data && response.data.err_code) {
+      // Handle the case where the request is unauthorized
+      if (response.data.err_code === '403') {
+        return res.status(403).json({ error: 'Unauthorized. Your account is not authorized to access the requested resource.' });
+      } else {
+        console.log("Error facing!");
+        return res.status(500).json({ error: 'Internal Server Error' });
+        
+      }
+    }
+
+    // Extract relevant product information from the API response
+    const products = response.data.map(product => ({
+      ID: product.ID,
+      post_title: product.post_title,
+    }));
+
+    // Send only the extracted product data in the response
+    res.json(products);
+    console.log('Products fetched!');
+  } catch (error) {
+    console.error('Error fetching products:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
  
 module.exports = router;
