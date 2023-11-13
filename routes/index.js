@@ -82,13 +82,18 @@ router.post('/products', async (req, res) => {
       category_id,
     });
 
-    // Extract relevant product information from the API response
-    const products = response.data.map(product => ({
-      ID: product.ID,
-      post_title: product.post_title,
-    }));
+    // Check if the response contains an array of products
+    if (Array.isArray(response.data)) {
+      const products = response.data.map(product => ({
+        ID: product.ID,
+        post_title: product.post_title,
+      }));
 
-    res.json(products);
+      res.json(products);
+    } else {
+      console.error('Unexpected API response format:', response.data);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
   } catch (error) {
     console.error('Error fetching products:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
