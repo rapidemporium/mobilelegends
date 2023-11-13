@@ -44,7 +44,7 @@
           <span id="warn">Please fill the form before selecting daimonds</span>
 
          <!-- input form  -->
-         <form method="post" action="/proceed">
+         <form>
           <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">User ID <span>Enter your User ID</span></label>
             <input type="number" name="userid" placeholder="E.g. 123456789" maxlength="10" class="form-control" id="exampleInputEmail1" required>
@@ -74,60 +74,60 @@
   
   <script>
   
-//   document.getElementById('rzp-button1').onclick = async function(e){
-//       e.preventDefault();
+  document.getElementById('rzp-button1').onclick = async function(e){
+      e.preventDefault();
   
-//       // Retrieve the value of "final" from the data attribute
-//       var final = document.getElementById('rzp-button1').getAttribute('data-final');
-//       var buyButton = document.getElementById("rzp-button1");
+      // Retrieve the value of "final" from the data attribute
+      var final = document.getElementById('rzp-button1').getAttribute('data-final');
+      var buyButton = document.getElementById("rzp-button1");
       
-//       buyButton.addEventListener("click", function(){
-//       var emailValue = emailInput.value;
+      buyButton.addEventListener("click", function(){
+      var emailValue = emailInput.value;
      
-// })
+})
   
-//       let response = await fetch("http://localhost:3000/payment", {
-//           method: "POST",
-//           headers: {
-//               "Content-Type": "application/json"
-//           },
-//           body: JSON.stringify({
-//               amount: final * 100,
-//           })
-//       })
+      let response = await fetch("http://localhost:3000/payment", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+              amount: final * 100,
+          })
+      })
    
   
-//       let orderData = await response.json();
-//       console.log(orderData.order.id);
+      let orderData = await response.json();
+      console.log(orderData.order.id);
   
-//       var options = {
-//       "key": "rzp_test_PCIwXguS5ffBCG", // Enter the Key ID generated from the Dashboard
-//       "amount": final * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-//       "currency": "INR",
-//       // "name": "Acme Corp",
-//       // "description": "Test Transaction",
-//       // "image": "https://example.com/your_logo",
-//       "order_id": orderData.order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-//       "handler": function (response){
-//           // alert(response.razorpay_payment_id);
-//           // alert(response.razorpay_order_id);
-//           // alert(response.razorpay_signature)
-//           // window.location.href = 'http://localhost:3000/check';
+      var options = {
+      "key": "rzp_test_PCIwXguS5ffBCG", // Enter the Key ID generated from the Dashboard
+      "amount": final * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      "currency": "INR",
+      // "name": "Acme Corp",
+      // "description": "Test Transaction",
+      // "image": "https://example.com/your_logo",
+      "order_id": orderData.order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+      "handler": function (response){
+          // alert(response.razorpay_payment_id);
+          // alert(response.razorpay_order_id);
+          // alert(response.razorpay_signature)
+          // window.location.href = 'http://localhost:3000/check';
   
-//   $.ajax({
-//       url: 'http://localhost:3000/pay-verify',
-//       type: 'POST',
-//       data: {
-//           razorpay_payment_id: response.razorpay_payment_id,
-//           razorpay_order_id: response.razorpay_order_id,
-//           razorpay_signature: response.razorpay_signature,
-//       },
-//   })
-//       },
-//   };
-//   var rzp1 = new Razorpay(options);
-//       rzp1.open();
-//   }
+  $.ajax({
+      url: 'http://localhost:3000/pay-verify',
+      type: 'POST',
+      data: {
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature,
+      },
+  })
+      },
+  };
+  var rzp1 = new Razorpay(options);
+      rzp1.open();
+  }
   
   </script>
     <script src="/javascripts/script.js"></script>
