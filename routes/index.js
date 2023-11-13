@@ -72,34 +72,36 @@ router.get('/test', function(req, res, next){
   res.render('test');
 })
 
-router.post('/products', async (req, res) => {
+router.get('/products', async (req, res) => {
   try {
-    const category_id = 1223; // Replace with the desired category ID
 
     // Make a request to the MooGold API to list products for the specified category
     const response = await axios.post('https://moogold.com/wp-json/v1/api/product/list_product', {
       path: 'product/list_product',
-      category_id,
+      category_id: 50
     });
 
-    // Check if the response contains an array of products
-    if (Array.isArray(response.data)) {
-      const products = response.data.map(product => ({
-        ID: product.ID,
-        post_title: product.post_title,
-      }));
-
-      res.json(products);
-    } else {
-      console.error('Unexpected API response format:', response.data);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+      //do not put direct
+      if (Array.isArray(response.data)) {
+        // Extract relevant product information from the API response
+        const products = response.data.map(product => ({
+          ID: product.ID,
+          post_title: product.post_title,
+        }));
+  
+        // Send only the extracted product data in the response
+        res.json(products);
+        console.log('Products fetched!');
+      } else {
+        console.error('Unexpected API response format:', response.data);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+ 
   } catch (error) {
     console.error('Error fetching products:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
 
 // router.use("/payment", async (req, res, next) => {
 
