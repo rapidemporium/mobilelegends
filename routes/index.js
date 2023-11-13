@@ -72,15 +72,24 @@ router.get('/test', function(req, res, next){
   res.render('test');
 })
 
+const username = 'a279dcd30939a86ffc355e7fea880c70';
+const password = 'OEPlGuwwiz';
+
+const headers = {
+  Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+  'Content-Type': 'application/json',
+};
+
 router.get('/products', async (req, res) => {
   try {
     const category_id = 1223; // Replace with the desired category ID
 
-    // Make a request to the MooGold API to list products for the specified category
-    const response = await axios.post('https://moogold.com/wp-json/v1/api/product/list_product', {
-      path: 'product/list_product',
-      category_id,
-    });
+    // Make a request to the MooGold API with Basic Authentication
+    const response = await axios.post(
+      'https://moogold.com/wp-json/v1/api/product/list_product',
+      { path: 'product/list_product', category_id },
+      { headers }
+    );
 
     // Check if the response contains an error
     if (response.data && response.data.err_code) {
@@ -88,7 +97,9 @@ router.get('/products', async (req, res) => {
       if (response.data.err_code === '403') {
         return res.status(403).json({ error: 'Unauthorized. Your account is not authorized to access the requested resource.' });
       } else {
+        console.log("Error facing!");
         return res.status(500).json({ error: 'Internal Server Error' });
+        
       }
     }
 
