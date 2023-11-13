@@ -72,7 +72,7 @@ router.get('/test', function(req, res, next){
   res.render('test');
 })
 
-router.get('/products', async (req, res) => {
+router.post('/products', async (req, res) => {
   try {
     const category_id = 1223; // Replace with the desired category ID
 
